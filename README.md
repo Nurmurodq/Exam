@@ -69,16 +69,21 @@ Sign in with one of the **test numbers** (no SMS is sent): `+1 201 555 0100`, `0
    - Optional for testing: add test phone numbers with fixed codes.
 4. **Authentication → URL Configuration**: set the Site URL to your deployed domain.
 
-### 2. Frontend (Vercel, Netlify, any static host)
+### 2. Frontend (Render, Vercel, Netlify, any static host)
 
-Build with `npm run build` and serve `dist/`. Set these environment variables (Supabase → Project Settings → API):
+Build with `npm ci && npm run build` and serve `dist/`. Set these environment variables (Supabase → Project Settings → API):
 
 ```
 VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<publishable / anon key>
 ```
 
-`vercel.json` already rewrites all routes to `index.html` for client-side routing.
+The values are baked in at build time, so **redeploy after changing them**.
+
+Client-side routes (`/c/<id>`) need the host to serve `index.html` for every path:
+
+- **Vercel:** `vercel.json` already does this.
+- **Render static site:** add a rewrite rule `/*` → `/index.html` (Settings → Redirects/Rewrites), **or** set `VITE_ROUTER_MODE=hash` to use `/#/c/<id>` URLs that need no server rule. The live Render deployment uses hash mode.
 
 ## Scripts
 

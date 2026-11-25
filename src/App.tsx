@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
@@ -9,6 +9,10 @@ import { isSupabaseConfigured } from './lib/supabase'
 import { EmptyChatPane } from './components/EmptyChatPane'
 import { ChatRoute } from './components/chat/ChatView'
 import { LogoMark } from './components/Logo'
+
+// Static hosts without SPA rewrites (e.g. a Render static site created via API) can set
+// VITE_ROUTER_MODE=hash so deep links like /#/c/<id> survive a page refresh.
+const Router = import.meta.env.VITE_ROUTER_MODE === 'hash' ? HashRouter : BrowserRouter
 
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 const ProfileSetupPage = lazy(() => import('./pages/ProfileSetupPage'))
@@ -40,10 +44,12 @@ function MissingConfig() {
         <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
           Supabase is not configured
         </Typography>
+        <Typography color="text.secondary" sx={{ mb: 1.5 }}>
+          This copy of Parley is not connected to a Supabase backend yet.
+        </Typography>
         <Typography color="text.secondary">
-          Create a <code>.env.local</code> file with <code>VITE_SUPABASE_URL</code> and{' '}
-          <code>VITE_SUPABASE_ANON_KEY</code> (see <code>.env.example</code> and the README), then restart the dev
-          server.
+          Set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> — in <code>.env.local</code> for
+          local development, or in your hosting provider’s environment settings — and rebuild. See the README.
         </Typography>
       </Paper>
     </Box>
@@ -54,7 +60,7 @@ export default function App() {
   if (!isSupabaseConfigured) return <MissingConfig />
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <Router>
         <Suspense fallback={<Splash />}>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
@@ -71,7 +77,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
-      </BrowserRouter>
+      </Router>
     </AuthProvider>
   )
 }
