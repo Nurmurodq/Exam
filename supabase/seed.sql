@@ -1,0 +1,2 @@
+-- Local development seed data (optional).
+-- Test phone numbers (code 123456) are configured in supabase/config.jsonc.
